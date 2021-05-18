@@ -1,15 +1,11 @@
-﻿import os
-import time
-import math
-
 import requests
 import json
 
 def pathtourl(imgPath, headers):
-    #A small helper
-    url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/ImageToken?device=pc&platform=web"
+    #A small helper which turns a Image path into a image link
+    url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/ImageToken"
     res = requests.post(
-            url, json.dumps({"urls": json.dumps([imgPath])}), headers = headers
+            url, json.dumps({"urls": json.dumps([imgPath])}), headers = headers #ImagePath needs to be in a list.
         )
     data = json.loads(res.text)['data'][0]
     url = data['url'] + '?token=' + data['token']
@@ -33,7 +29,9 @@ class BilibiliComics():
 
     def comicdetails(self, comicID: int):
         #https://www.bilibilicomics.com/detail/mc{comicID}
-        url = "https://www.bilibilicomics.com/twirp/comic.v2.Comic/ComicDetail?device=pc&platform=web"
+        #Gets necessary details of the comic (title, description, author, etc.)
+        #
+        url = "https://www.bilibilicomics.com/twirp/comic.v2.Comic/ComicDetail"
         res = requests.post(
                 url, json.dumps({"comic_id": comicID}), headers = self.headers 
             )
@@ -42,7 +40,9 @@ class BilibiliComics():
 
     def getepisode(self, episodeID: int):
         #https://www.bilibilicomics.com/mc{comicID}/{episodeID}
-        url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/GetEpisode?device=pc&platform=web"
+        #Gets Episode Name and number (stored as str by short_title)
+        
+        url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/GetEpisode"
         res = requests.post(
                 url, json.dumps({"id": episodeID}), headers = self.headers 
             )
@@ -51,7 +51,8 @@ class BilibiliComics():
 
     def getepisodeimages(self, episodeID: int):
         #https://www.bilibilicomics.com/mc{comicID}/{episodeID}
-        url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/GetImageIndex?device=pc&platform=web"
+        #Gets image path, height, width for every image in the episode
+        url = "https://www.bilibilicomics.com/twirp/comic.v1.Comic/GetImageIndex"
         res = requests.post(
                 url, json.dumps({"ep_id":episodeID}), headers = self.headers 
             )
@@ -61,6 +62,7 @@ class BilibiliComics():
         imagelinks = {}
 
         for i, dict in enumerate(imagesData):
+            # "{path}@{width aka x}w.jpg"
             imagePath = "\"" + imagesData[i]["path"] + "@" + str(dict["x"]) + "w.jpg" + "\""
 
 
